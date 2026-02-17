@@ -18,7 +18,12 @@ function parseEndpoint(endpoint: string): { server: string; path: string } {
   try {
     const url = new URL(converted)
     const server = `${url.protocol}//${url.host}`
-    const path = decodeURIComponent(url.pathname) || "/"
+    let path: string
+    try {
+      path = decodeURIComponent(url.pathname) || "/"
+    } catch {
+      path = url.pathname || "/"
+    }
     return { server, path }
   } catch {
     // Not a valid URL — treat the whole thing as a path
