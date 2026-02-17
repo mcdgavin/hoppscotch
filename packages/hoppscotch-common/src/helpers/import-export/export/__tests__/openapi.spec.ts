@@ -196,6 +196,21 @@ describe("hoppCollectionToOpenAPI", () => {
       expect(doc.paths["/users"]!.post!.operationId).toBe("Get_Users_2")
     })
 
+    it("falls back to method_path operationId when name is all special characters", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "!!!",
+            method: "GET",
+            endpoint: "https://api.example.com/users",
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+
+      expect(doc.paths["/users"]!.get!.operationId).toBe("get_users")
+    })
+
     it("maps multiple HTTP methods to the same path", () => {
       const collection = buildCollection({
         requests: [

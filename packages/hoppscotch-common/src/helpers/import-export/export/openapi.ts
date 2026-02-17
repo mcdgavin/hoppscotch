@@ -428,7 +428,9 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
         operation.description = request.description
       }
 
-      let operationId = sanitizeOperationId(request.name)
+      let operationId =
+        sanitizeOperationId(request.name) ||
+        `${method}_${path.replace(/[^a-zA-Z0-9]/g, "_").replace(/^_+|_+$/g, "")}`
       if (usedOperationIds.has(operationId)) {
         let counter = 2
         while (usedOperationIds.has(`${operationId}_${counter}`)) {
