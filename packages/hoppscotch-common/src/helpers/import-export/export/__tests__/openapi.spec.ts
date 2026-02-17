@@ -518,6 +518,139 @@ describe("hoppCollectionToOpenAPI", () => {
       })
     })
 
+    it("converts OAuth2 authorization code flow", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+            auth: {
+              authType: "oauth-2",
+              authActive: true,
+              addTo: "HEADERS",
+              grantTypeInfo: {
+                grantType: "AUTHORIZATION_CODE",
+                authEndpoint: "https://auth.example.com/authorize",
+                tokenEndpoint: "https://auth.example.com/token",
+                clientID: "client123",
+                clientSecret: "secret",
+                scopes: "read write",
+                isPKCE: false,
+                codeVerifierMethod: "S256",
+                token: "",
+              },
+            } as any,
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+      const scheme = doc.components!.securitySchemes!.oauth2 as any
+
+      expect(scheme.type).toBe("oauth2")
+      expect(scheme.flows.authorizationCode).toEqual({
+        authorizationUrl: "https://auth.example.com/authorize",
+        tokenUrl: "https://auth.example.com/token",
+        scopes: { read: "", write: "" },
+      })
+    })
+
+    it("converts OAuth2 client credentials flow", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+            auth: {
+              authType: "oauth-2",
+              authActive: true,
+              addTo: "HEADERS",
+              grantTypeInfo: {
+                grantType: "CLIENT_CREDENTIALS",
+                authEndpoint: "",
+                tokenEndpoint: "https://auth.example.com/token",
+                clientID: "client123",
+                clientSecret: "secret",
+                scopes: "admin",
+                token: "",
+              },
+            } as any,
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+      const scheme = doc.components!.securitySchemes!.oauth2 as any
+
+      expect(scheme.flows.clientCredentials).toEqual({
+        tokenUrl: "https://auth.example.com/token",
+        scopes: { admin: "" },
+      })
+    })
+
+    it("converts OAuth2 password flow", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+            auth: {
+              authType: "oauth-2",
+              authActive: true,
+              addTo: "HEADERS",
+              grantTypeInfo: {
+                grantType: "PASSWORD",
+                authEndpoint: "",
+                tokenEndpoint: "https://auth.example.com/token",
+                clientID: "client123",
+                clientSecret: "secret",
+                username: "user",
+                password: "pass",
+                scopes: "",
+                token: "",
+              },
+            } as any,
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+      const scheme = doc.components!.securitySchemes!.oauth2 as any
+
+      expect(scheme.flows.password).toEqual({
+        tokenUrl: "https://auth.example.com/token",
+        scopes: {},
+      })
+    })
+
+    it("converts OAuth2 implicit flow", () => {
+      const collection = buildCollection({
+        requests: [
+          buildRequest({
+            name: "Test",
+            endpoint: "https://api.example.com/test",
+            auth: {
+              authType: "oauth-2",
+              authActive: true,
+              addTo: "HEADERS",
+              grantTypeInfo: {
+                grantType: "IMPLICIT",
+                authEndpoint: "https://auth.example.com/authorize",
+                clientID: "client123",
+                scopes: "profile email",
+                token: "",
+              },
+            } as any,
+          }),
+        ],
+      })
+      const { doc } = hoppCollectionToOpenAPI(collection)
+      const scheme = doc.components!.securitySchemes!.oauth2 as any
+
+      expect(scheme.flows.implicit).toEqual({
+        authorizationUrl: "https://auth.example.com/authorize",
+        scopes: { profile: "", email: "" },
+      })
+      expect(doc.paths["/test"]!.get!.security).toEqual([{ oauth2: [] }])
+    })
+
     it("converts API key auth in header", () => {
       const collection = buildCollection({
         requests: [
