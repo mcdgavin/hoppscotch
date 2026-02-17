@@ -5,7 +5,7 @@ import { OpenAPIV3_1 } from "openapi-types"
  * Convert Hoppscotch template variables `<<var>>` to OpenAPI path parameters `{var}`
  */
 function convertTemplateVars(path: string): string {
-  return path.replace(/<<(\w+)>>/g, "{$1}")
+  return path.replace(/<<([a-zA-Z0-9_.-]+)>>/g, "{$1}")
 }
 
 /**
@@ -411,7 +411,7 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
       }
 
       // Auto-generate path params for any {var} in the path not already defined
-      const pathParamMatches = path.matchAll(/\{(\w+)\}/g)
+      const pathParamMatches = path.matchAll(/\{([a-zA-Z0-9_.-]+)\}/g)
       for (const match of pathParamMatches) {
         const paramName = match[1]
         if (!definedPathParams.has(paramName)) {
