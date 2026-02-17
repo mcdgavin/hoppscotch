@@ -92,7 +92,9 @@ function convertBody(
 
     if (bodyStr) {
       for (const pair of bodyStr.split("&")) {
-        const [rawKey, rawValue] = pair.split("=")
+        const eqIdx = pair.indexOf("=")
+        const rawKey = eqIdx === -1 ? pair : pair.slice(0, eqIdx)
+        const rawValue = eqIdx === -1 ? "" : pair.slice(eqIdx + 1)
         let key: string, value: string
         try {
           key = decodeURIComponent(rawKey)
