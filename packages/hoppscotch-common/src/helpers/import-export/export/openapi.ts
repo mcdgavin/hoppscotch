@@ -38,6 +38,19 @@ function sanitizeOperationId(name: string): string {
 }
 
 /**
+ * Parse a space-separated scopes string into an OpenAPI scopes object.
+ * Filters out empty/whitespace-only entries.
+ */
+function parseScopes(scopes: string | undefined): Record<string, string> {
+  if (!scopes) return {}
+  const entries = scopes
+    .split(" ")
+    .filter((s) => s.length > 0)
+    .map((s) => [s, ""] as const)
+  return Object.fromEntries(entries)
+}
+
+/**
  * Convert request body to OpenAPI requestBody
  */
 function convertBody(
@@ -211,41 +224,25 @@ function convertAuth(auth: HoppRESTRequest["auth"]): {
           flows.authorizationCode = {
             authorizationUrl: grantInfo.authEndpoint || "",
             tokenUrl: grantInfo.tokenEndpoint || "",
-            scopes: grantInfo.scopes
-              ? Object.fromEntries(
-                  grantInfo.scopes.split(" ").map((s: string) => [s, ""])
-                )
-              : {},
+            scopes: parseScopes(grantInfo.scopes),
           }
           break
         case "CLIENT_CREDENTIALS":
           flows.clientCredentials = {
             tokenUrl: grantInfo.tokenEndpoint || "",
-            scopes: grantInfo.scopes
-              ? Object.fromEntries(
-                  grantInfo.scopes.split(" ").map((s: string) => [s, ""])
-                )
-              : {},
+            scopes: parseScopes(grantInfo.scopes),
           }
           break
         case "PASSWORD":
           flows.password = {
             tokenUrl: grantInfo.tokenEndpoint || "",
-            scopes: grantInfo.scopes
-              ? Object.fromEntries(
-                  grantInfo.scopes.split(" ").map((s: string) => [s, ""])
-                )
-              : {},
+            scopes: parseScopes(grantInfo.scopes),
           }
           break
         case "IMPLICIT":
           flows.implicit = {
             authorizationUrl: grantInfo.authEndpoint || "",
-            scopes: grantInfo.scopes
-              ? Object.fromEntries(
-                  grantInfo.scopes.split(" ").map((s: string) => [s, ""])
-                )
-              : {},
+            scopes: parseScopes(grantInfo.scopes),
           }
           break
       }
