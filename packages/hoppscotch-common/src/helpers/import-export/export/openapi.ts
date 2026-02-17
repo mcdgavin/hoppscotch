@@ -87,7 +87,15 @@ function convertBody(
 
     if (bodyStr) {
       for (const pair of bodyStr.split("&")) {
-        const [key, value] = pair.split("=").map(decodeURIComponent)
+        const [rawKey, rawValue] = pair.split("=")
+        let key: string, value: string
+        try {
+          key = decodeURIComponent(rawKey)
+          value = decodeURIComponent(rawValue)
+        } catch {
+          key = rawKey
+          value = rawValue
+        }
         if (key) {
           properties[key] = { type: "string", example: value ?? "" }
         }
