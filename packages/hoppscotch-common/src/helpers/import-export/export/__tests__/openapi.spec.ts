@@ -566,8 +566,7 @@ describe("hoppCollectionToOpenAPI", () => {
               addTo: "HEADERS",
               grantTypeInfo: {
                 grantType: "CLIENT_CREDENTIALS",
-                authEndpoint: "",
-                tokenEndpoint: "https://auth.example.com/token",
+                authEndpoint: "https://auth.example.com/token",
                 clientID: "client123",
                 clientSecret: "secret",
                 scopes: "admin",
@@ -598,8 +597,7 @@ describe("hoppCollectionToOpenAPI", () => {
               addTo: "HEADERS",
               grantTypeInfo: {
                 grantType: "PASSWORD",
-                authEndpoint: "",
-                tokenEndpoint: "https://auth.example.com/token",
+                authEndpoint: "https://auth.example.com/token",
                 clientID: "client123",
                 clientSecret: "secret",
                 username: "user",

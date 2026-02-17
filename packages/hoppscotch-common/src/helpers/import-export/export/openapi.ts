@@ -229,13 +229,13 @@ function convertAuth(auth: HoppRESTRequest["auth"]): {
           break
         case "CLIENT_CREDENTIALS":
           flows.clientCredentials = {
-            tokenUrl: grantInfo.tokenEndpoint || "",
+            tokenUrl: grantInfo.authEndpoint || "",
             scopes: parseScopes(grantInfo.scopes),
           }
           break
         case "PASSWORD":
           flows.password = {
-            tokenUrl: grantInfo.tokenEndpoint || "",
+            tokenUrl: grantInfo.authEndpoint || "",
             scopes: parseScopes(grantInfo.scopes),
           }
           break
