@@ -661,7 +661,9 @@ describe("hoppCollectionToOpenAPI", () => {
         authorizationUrl: "https://auth.example.com/authorize",
         scopes: { profile: "", email: "" },
       })
-      expect(doc.paths["/test"]!.get!.security).toEqual([{ oauth2: [] }])
+      expect(doc.paths["/test"]!.get!.security).toEqual([
+        { oauth2: ["profile", "email"] },
+      ])
     })
 
     it("converts API key auth in header", () => {

@@ -162,6 +162,7 @@ function convertBody(
 function convertAuth(auth: HoppRESTRequest["auth"]): {
   schemeName: string
   scheme: OpenAPIV3_1.SecuritySchemeObject
+  scopes: string[]
 } | null {
   if (!auth.authActive) return null
 
@@ -170,11 +171,13 @@ function convertAuth(auth: HoppRESTRequest["auth"]): {
       return {
         schemeName: "basicAuth",
         scheme: { type: "http", scheme: "basic" },
+        scopes: [],
       }
     case "bearer":
       return {
         schemeName: "bearerAuth",
         scheme: { type: "http", scheme: "bearer" },
+        scopes: [],
       }
     case "api-key": {
       const addTo = auth.addTo === "QUERY_PARAMS" ? "query" : "header"
@@ -186,17 +189,20 @@ function convertAuth(auth: HoppRESTRequest["auth"]): {
           in: addTo,
           name: auth.key || "api_key",
         },
+        scopes: [],
       }
     }
     case "jwt":
       return {
         schemeName: "jwtAuth",
         scheme: { type: "http", scheme: "bearer", bearerFormat: "JWT" },
+        scopes: [],
       }
     case "digest":
       return {
         schemeName: "digestAuth",
         scheme: { type: "http", scheme: "digest" },
+        scopes: [],
       }
     case "aws-signature":
       return {
@@ -207,6 +213,7 @@ function convertAuth(auth: HoppRESTRequest["auth"]): {
           name: "Authorization",
           description: "AWS Signature Version 4",
         },
+        scopes: [],
       }
     case "hawk":
       return {
@@ -217,6 +224,7 @@ function convertAuth(auth: HoppRESTRequest["auth"]): {
           name: "Authorization",
           description: "Hawk authentication",
         },
+        scopes: [],
       }
     case "akamai-eg":
       return {
@@ -227,6 +235,7 @@ function convertAuth(auth: HoppRESTRequest["auth"]): {
           name: "Authorization",
           description: "Akamai EdgeGrid authentication",
         },
+        scopes: [],
       }
     case "oauth-2": {
       const flows: OpenAPIV3_1.OAuthFlowsObject = {}
@@ -260,9 +269,11 @@ function convertAuth(auth: HoppRESTRequest["auth"]): {
           break
       }
 
+      const scopeKeys = Object.keys(parseScopes(grantInfo.scopes))
       return {
         schemeName: "oauth2",
         scheme: { type: "oauth2", flows },
+        scopes: scopeKeys,
       }
     }
     default:
@@ -463,7 +474,7 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
       const authResult = convertAuth(request.auth)
       if (authResult) {
         securitySchemes[authResult.schemeName] = authResult.scheme
-        operation.security = [{ [authResult.schemeName]: [] }]
+        operation.security = [{ [authResult.schemeName]: authResult.scopes }]
       }
 
       // Track warnings
@@ -533,7 +544,7 @@ export function hoppCollectionToOpenAPI(collection: HoppCollection): {
   const collectionAuth = convertAuth(collection.auth as HoppRESTRequest["auth"])
   if (collectionAuth) {
     securitySchemes[collectionAuth.schemeName] = collectionAuth.scheme
-    doc.security = [{ [collectionAuth.schemeName]: [] }]
+    doc.security = [{ [collectionAuth.schemeName]: collectionAuth.scopes }]
   }
   if (
     collection.auth.authActive &&
