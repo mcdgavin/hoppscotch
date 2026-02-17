@@ -3247,9 +3247,15 @@ const doExportOpenAPI = async (format: "json" | "yaml") => {
     name: string
   ) => {
     const isYaml = format === "yaml"
-    const data = isYaml
-      ? yaml.dump(openAPIDoc)
-      : JSON.stringify(openAPIDoc, null, 2)
+    let data: string
+    try {
+      data = isYaml
+        ? yaml.dump(openAPIDoc)
+        : JSON.stringify(openAPIDoc, null, 2)
+    } catch {
+      toast.error(t("error.something_went_wrong"))
+      return
+    }
     const contentType = isYaml ? "application/x-yaml" : "application/json"
     const extension = isYaml ? "yaml" : "json"
 
